@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Expert Advice — Orchard Doctor{% endblock %}
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+<div class="page-header">
+  <h1>💬 Expert Advice</h1>
+  <p>Guidance from agriculture professionals experienced in Kashmir Valley orchards</p>
+  {% if session.role in ['expert','manager'] %}
+  <a href="{{ url_for('new_advice') }}" class="btn btn-primary">+ Post Advice</a>
+  {% endif %}
+</div>
+
+<div class="advice-list">
+  {% for a in items %}
+  <div class="advice-card">
+    <div class="advice-card-header">
+      <div>
+        <h3>{{ a.title }}</h3>
+        {% if a.disease_name %}
+        <span class="advice-disease-tag">Re: {{ a.disease_name }}</span>
+        {% endif %}
+      </div>
+      <div class="advice-meta">
+        <span class="expert-avatar">👨‍🌾</span>
+        <div>
+          <strong>{{ a.expert_name }}</strong>
+          <div class="advice-date">{{ a.created_at.strftime('%d %b %Y') }}</div>
+        </div>
+      </div>
+    </div>
+    <p class="advice-content">{{ a.content }}</p>
+    {% if a.disease_id %}
+    <a href="{{ url_for('disease_detail', disease_id=a.disease_id) }}" class="advice-link">View Disease →</a>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span>💬</span>
+    <h3>No advice posted yet</h3>
+    <p>Experts can share guidance using the button above</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

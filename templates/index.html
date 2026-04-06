@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Apple Orchard Doctor — Kashmir Valley{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Kashmir Valley Agricultural Technology</div>
+    <h1 class="hero-title">Apple Orchard<br><em>Doctor System</em></h1>
+    <p class="hero-sub">Identify diseases, get treatments, and protect your orchard — all in one place.</p>
+    <div class="hero-cta">
+      <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started Free</a>
+      <a href="{{ url_for('login') }}" class="btn btn-outline">Log In</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="apple-icon-big">🍎</div>
+  </div>
+</div>
+
+<section class="features">
+  <div class="features-header">
+    <h2>Key Features of <em class="heading-highlight">Our System</em></h2>
+    <p>Everything a Kashmir Valley apple grower needs — in one <strong>intelligent platform</strong>.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">🧬</span>
+      </div>
+      <h3>CNN Leaf Scanner</h3>
+      <p>Upload a photo of any apple leaf. Our MobileNetV2 model identifies the disease with <strong>93–97% accuracy</strong> in seconds.</p>
+      <ul class="feature-bullets">
+        <li>Apple Scab</li>
+        <li>Black Rot</li>
+        <li>Cedar Apple Rust</li>
+        <li>Healthy Leaf</li>
+      </ul>
+      <span class="feature-tag">AI-Powered</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">💊</span>
+      </div>
+      <h3>Treatment Plans</h3>
+      <p>Receive tailored treatment options — chemical, organic, and cultural — with exact <strong>dosages and timing</strong> for each disease.</p>
+      <ul class="feature-bullets">
+        <li>Chemical treatments</li>
+        <li>Organic alternatives</li>
+        <li>Preventive measures</li>
+        <li>Cost estimates</li>
+      </ul>
+      <span class="feature-tag">Actionable</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">👨🌾</span>
+      </div>
+      <h3>Expert Guidance</h3>
+      <p>Verified advice from agriculture specialists who understand <strong>Kashmir Valley's unique climate</strong> and growing conditions.</p>
+      <ul class="feature-bullets">
+        <li>Local expert network</li>
+        <li>Seasonal advisories</li>
+        <li>Peer-reviewed tips</li>
+        <li>Direct Q&amp;A posts</li>
+      </ul>
+      <span class="feature-tag">Verified</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">📚</span>
+      </div>
+      <h3>Disease Library</h3>
+      <p>A complete, searchable database of apple diseases, pests, and nutritional deficiencies — with <strong>9 conditions</strong> catalogued.</p>
+      <ul class="feature-bullets">
+        <li>Fire Blight, Scab, Rot</li>
+        <li>Codling Moth &amp; pests</li>
+        <li>Powdery Mildew</li>
+        <li>Nutritional deficiencies</li>
+      </ul>
+      <span class="feature-tag">Comprehensive</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

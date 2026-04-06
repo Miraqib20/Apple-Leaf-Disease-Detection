@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Leaf Orchard Doctor{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<div class="db-hero">
+  <div class="db-hero-bg"></div>
+  <div class="db-hero-content">
+    <div class="db-greeting">
+      <div class="db-avatar">🌿</div>
+      <div>
+        <h1>Welcome back, <span class="db-name">{{ session.name }}</span> 👋</h1>
+        <p>Here's your orchard health overview for today.</p>
+      </div>
+    </div>
+    <div class="db-time-badge" id="currentTime"></div>
+  </div>
+</div>
+
+<!-- ── STAT CARDS ── -->
+<div class="db-stats">
+  <a href="{{ url_for('diseases') }}" class="db-stat-card db-stat-green fade-up" style="--d:0.05s">
+    <div class="db-stat-icon-wrap green">🦠</div>
+    <div class="db-stat-body">
+      <div class="db-stat-value">{{ disease_count }}</div>
+      <div class="db-stat-label">Diseases in Library</div>
+    </div>
+    <div class="db-stat-arrow">→</div>
+  </a>
+  <a href="#recent" class="db-stat-card db-stat-amber fade-up" style="--d:0.10s">
+    <div class="db-stat-icon-wrap amber">📋</div>
+    <div class="db-stat-body">
+      <div class="db-stat-value">{{ my_diagnoses }}</div>
+      <div class="db-stat-label">My Diagnoses Logged</div>
+    </div>
+    <div class="db-stat-arrow">→</div>
+  </a>
+  <a href="{{ url_for('advice_list') }}" class="db-stat-card db-stat-blue fade-up" style="--d:0.15s">
+    <div class="db-stat-icon-wrap blue">💬</div>
+    <div class="db-stat-body">
+      <div class="db-stat-value">{{ advice_count }}</div>
+      <div class="db-stat-label">Expert Advice Posts</div>
+    </div>
+    <div class="db-stat-arrow">→</div>
+  </a>
+</div>
+
+<!-- ── QUICK ACTIONS ── -->
+<div class="db-actions fade-up" style="--d:0.2s">
+  <a href="{{ url_for('scan') }}" class="db-action-card db-action-primary">
+    <div class="db-action-icon">🔬</div>
+    <div class="db-action-text">
+      <strong>Scan a Leaf</strong>
+      <span>AI-powered CNN diagnosis</span>
+    </div>
+    <div class="db-action-chevron">›</div>
+  </a>
+  <a href="{{ url_for('identify') }}" class="db-action-card db-action-primary">
+    <div class="db-action-icon">🔍</div>
+    <div class="db-action-text">
+      <strong>Identify by Symptoms</strong>
+      <span>Select symptoms to diagnose</span>
+    </div>
+    <div class="db-action-chevron">›</div>
+  </a>
+  <a href="{{ url_for('diseases') }}" class="db-action-card">
+    <div class="db-action-icon">📚</div>
+    <div class="db-action-text">
+      <strong>Disease Library</strong>
+      <span>Browse all known diseases</span>
+    </div>
+    <div class="db-action-chevron">›</div>
+  </a>
+  <a href="{{ url_for('advice_list') }}" class="db-action-card">
+    <div class="db-action-icon">👨🌾</div>
+    <div class="db-action-text">
+      <strong>Expert Advice</strong>
+      <span>Guidance from professionals</span>
+    </div>
+    <div class="db-action-chevron">›</div>
+  </a>
+  {% if session.role == 'manager' %}
+  <a href="{{ url_for('manager_role') }}" class="db-action-card db-action-primary">
+    <div class="db-action-icon">🏡</div>
+    <div class="db-action-text">
+      <strong>Manager Responsibilities</strong>
+      <span>Your role &amp; duties guide</span>
+    </div>
+    <div class="db-action-chevron">›</div>
+  </a>
+  {% endif %}
+</div>
+
+<!-- ── BOTTOM ROW ── -->
+<div class="db-bottom fade-up" style="--d:0.25s">
+
+  <!-- Chart -->
+  <div class="db-card db-chart-card">
+    <div class="db-card-header">
+      <span class="db-card-icon">📊</span>
+      <h2>Diagnoses Overview</h2>
+      {% if recent %}
+      <span class="db-total-badge ml-auto">Total: <strong>{{ my_diagnoses }}</strong></span>
+      {% endif %}
+    </div>
+    {% if recent %}
+      <canvas id="diagnosisChart" height="190"></canvas>
+    {% else %}
+      <div class="db-empty">
+        <span>🌱</span>
+        <p>No diagnoses yet. Scan a leaf to get started.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Diagnoses -->
+  <div class="db-card db-recent-card" id="recent">
+    <div class="db-card-header">
+      <span class="db-card-icon">🕐</span>
+      <h2>Recent Diagnoses</h2>
+      {% if recent %}
+      <a href="{{ url_for('dashboard_pdf') }}" class="btn-pdf ml-auto">⬇ Full PDF</a>
+      {% endif %}
+    </div>
+    {% if recent %}
+      <div class="db-recent-list">
+        {% for r in recent %}
+        <div class="db-recent-row">
+          <div class="db-recent-dot
+            {% if 'Rot' in r.disease or 'Blight' in r.disease %}dot-red
+            {% elif 'Rust' in r.disease or 'Mildew' in r.disease %}dot-amber
+            {% else %}dot-green{% endif %}">
+          </div>
+          <div class="db-recent-info">
+            <strong>{{ r.disease }}</strong>
+            <span>{{ r.diagnosed_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+          </div>
+          <a href="{{ url_for('diagnosis_pdf', diagnosis_id=r.diagnosis_id) }}" class="btn-pdf-sm">⬇ PDF</a>
+          <button class="btn-del-sm" onclick="confirmDelete({{ r.diagnosis_id }}, '{{ r.disease }}')">🗑</button>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="db-empty">
+        <span>📋</span>
+        <p>Your diagnosis history will appear here.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="del-modal-overlay" id="delOverlay">
+  <div class="del-modal">
+    <div class="del-modal-icon">🗑</div>
+    <h3>Delete Diagnosis?</h3>
+    <p id="delModalMsg">This will permanently remove this diagnosis record.</p>
+    <div class="del-modal-actions">
+      <button class="del-cancel" onclick="closeDelModal()">Cancel</button>
+      <form id="delForm" method="POST">
+        <button type="submit" class="del-confirm">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+/* Delete modal */
+function confirmDelete(id, name) {
+  document.getElementById('delModalMsg').textContent = `Remove "${name}" from your diagnosis history?`;
+  document.getElementById('delForm').action = `/diagnosis/${id}/delete`;
+  document.getElementById('delOverlay').classList.add('active');
+}
+function closeDelModal() {
+  document.getElementById('delOverlay').classList.remove('active');
+}
+document.getElementById('delOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeDelModal();
+});
+
+/* Live clock */
+function updateTime() {
+  document.getElementById('currentTime').innerText =
+    new Date().toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+/* Chart */
+const diagData = {
+  labels: [{% for r in recent %}"{{ r.disease[:14] }}"{% if not loop.last %},{% endif %}{% endfor %}],
+  counts: [{% for r in recent %}1{% if not loop.last %},{% endif %}{% endfor %}]
+};
+const agg = {};
+diagData.labels.forEach((l, i) => { agg[l] = (agg[l] || 0) + diagData.counts[i]; });
+const labels = Object.keys(agg);
+const data   = Object.values(agg);
+const total  = data.reduce((a, b) => a + b, 0);
+
+const ctx = document.getElementById('diagnosisChart');
+if (ctx && labels.length) {
+  const maxVal = data.length ? Math.max(...data) + 1 : 2;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Diagnoses',
+        data,
+        backgroundColor: [
+          'rgba(45,106,79,0.82)', 'rgba(64,145,108,0.82)',
+          'rgba(116,198,157,0.82)', 'rgba(233,196,106,0.82)'
+        ],
+        borderColor: '#1b4332',
+        borderWidth: 1.5,
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      layout: { padding: { top: 30 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1b4332',
+          padding: 10,
+          titleFont: { family: 'DM Sans', size: 12 },
+          bodyFont:  { family: 'DM Sans', size: 11 },
+          callbacks: {
+            label: c => {
+              const pct = total ? ((c.parsed.y / total) * 100).toFixed(1) : 0;
+              return ` ${c.parsed.y} diagnosis (${pct}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: maxVal,
+          ticks: { stepSize: 1, precision: 0, font: { family: 'DM Sans', size: 11 }, color: '#6b6b6b' },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: {
+            display: true,
+            text: 'Number of Diagnoses',
+            color: '#2d6a4f',
+            font: { family: 'DM Sans', size: 12, weight: '600' },
+            padding: { bottom: 6 }
+          }
+        },
+        x: {
+          ticks: { font: { family: 'DM Sans', size: 11 }, color: '#6b6b6b' },
+          grid: { display: false },
+          title: {
+            display: true,
+            text: 'Disease',
+            color: '#2d6a4f',
+            font: { family: 'DM Sans', size: 12, weight: '600' },
+            padding: { top: 6 }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'barLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx, data } = chart;
+        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+          const val = data.datasets[0].data[i];
+          const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+          ctx.save();
+          ctx.font = 'bold 11px DM Sans, Arial';
+          ctx.fillStyle = '#1b4332';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(val, bar.x, bar.y - 2);
+          ctx.font = '10px DM Sans, Arial';
+          ctx.fillStyle = '#40916c';
+          ctx.fillText(`${pct}%`, bar.x, bar.y - 15);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+}
+
+/* Scroll-triggered fade-in */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.db-stat-card, .db-action-card, .db-card').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

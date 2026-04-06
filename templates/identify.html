@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Identify Disease — Orchard Doctor{% endblock %}
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+<div class="page-header">
+  <h1>🔍 Identify a Disease</h1>
+  <p>Select the symptoms you are observing on your apple trees</p>
+</div>
+
+<div class="identify-layout">
+  <div class="symptom-panel">
+    <form method="POST" action="{{ url_for('identify') }}" id="symptom-form">
+      <div class="part-tabs">
+        {% set parts = [('all','All'),('leaf','Leaf'),('fruit','Fruit'),('bark','Bark'),('root','Root'),('flower','Flower'),('whole_tree','Whole Tree')] %}
+        {% for val, label in parts %}
+        <button type="button" class="part-tab {% if loop.first %}active{% endif %}" data-part="{{ val }}">{{ label }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="symptom-list" id="symptom-list">
+        {% for s in symptoms %}
+        <label class="symptom-item" data-part="{{ s.body_part }}">
+          <input type="checkbox" name="symptoms" value="{{ s.id }}"
+            {% if s.id in selected_ids %}checked{% endif %}>
+          <span class="symptom-check"></span>
+          <span class="symptom-text">{{ s.name }}</span>
+          <span class="symptom-part-badge">{{ s.body_part|replace('_',' ')|title }}</span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="identify-footer">
+        <span id="selected-count">{{ selected_ids|length }} selected</span>
+        <button type="submit" class="btn btn-primary">Find Diseases →</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="results-panel">
+    {% if results %}
+    <h2>Possible Diseases Found</h2>
+    {% for d in results %}
+    <div class="result-card severity-{{ d.severity }}">
+      <div class="result-header">
+        <div>
+          <h3>{{ d.name }}</h3>
+          {% if d.scientific_name %}<em>{{ d.scientific_name }}</em>{% endif %}
+        </div>
+        <div class="result-match">
+          <div class="match-pct">{{ d.match_pct|int }}%</div>
+          <div class="match-label">match</div>
+        </div>
+      </div>
+      <p>{{ d.description[:200] }}...</p>
+      <div class="result-footer">
+        <span class="severity-badge {{ d.severity }}">{{ d.severity|upper }}</span>
+        <span class="category-badge">{{ d.category }}</span>
+        <a href="{{ url_for('disease_detail', disease_id=d.id) }}" class="btn btn-sm">View Details →</a>
+      </div>
+    </div>
+    {% endfor %}
+    {% elif request.method == 'POST' %}
+    <div class="empty-state">
+      <span>😕</span>
+      <h3>No diseases matched</h3>
+      <p>Try selecting more symptoms or different combinations</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <span>👈</span>
+      <h3>Select symptoms to begin</h3>
+      <p>Choose what you observe on your trees and click "Find Diseases"</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const tabs = document.querySelectorAll('.part-tab');
+const items = document.querySelectorAll('.symptom-item');
+const counter = document.getElementById('selected-count');
+const checkboxes = document.querySelectorAll('input[type=checkbox]');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const part = tab.dataset.part;
+    items.forEach(item => {
+      item.style.display = (part === 'all' || item.dataset.part === part) ? 'flex' : 'none';
+    });
+  });
+});
+
+checkboxes.forEach(cb => {
+  cb.addEventListener('change', () => {
+    const n = document.querySelectorAll('input[type=checkbox]:checked').length;
+    counter.textContent = n + ' selected';
+  });
+});
+</script>
+{% endblock %}

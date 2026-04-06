@@ -1,0 +1,568 @@
+{% extends "base.html" %}
+{% block title %}Scan Leaf — Leaf Orchard Doctor{% endblock %}
+
+{% block head %}
+<style>
+/* ══ SCAN PAGE ══════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+
+.scan-page { font-family: 'Roboto', Arial, sans-serif; }
+
+/* Page header */
+.scan-hero {
+  background: linear-gradient(120deg, #1b4332 0%, #2d6a4f 60%, #40916c 100%);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.scan-hero-icon {
+  width: 56px; height: 56px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; flex-shrink: 0;
+}
+.scan-hero h1 {
+  font-size: 1.5rem; font-weight: 700;
+  color: #fff; margin: 0 0 0.2rem;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+.scan-hero p { color: rgba(255,255,255,0.72); font-size: 0.88rem; margin: 0; }
+
+/* Not-ready banner */
+.not-ready-banner {
+  background: #fff8e1;
+  border: 1.5px solid #e9c46a;
+  border-left: 5px solid #e9c46a;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #7a5800;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.not-ready-banner strong { display: block; font-size: 1rem; margin-bottom: 0.4rem; }
+.not-ready-banner code {
+  background: rgba(0,0,0,0.07);
+  padding: 0.15rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.83rem;
+}
+
+/* Two-column grid */
+.scan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* ── Base card ── */
+.sc-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e4ede6;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 1.75rem;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.sc-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+.sc-card-title {
+  font-size: 1rem; font-weight: 700;
+  color: #1b4332;
+  margin: 0 0 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.sc-card-title span { font-size: 1.1rem; }
+
+/* ── Upload / drop zone ── */
+.drop-zone {
+  border: 2.5px dashed #74c69d;
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: #f6fff8;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: #2d6a4f;
+  background: #d8f3dc;
+}
+.drop-zone input[type=file] {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer;
+  width: 100%; height: 100%;
+}
+.drop-icon-wrap {
+  width: 72px; height: 72px;
+  background: #d8f3dc;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+}
+.drop-zone h3 {
+  font-size: 1rem; font-weight: 600;
+  color: #1b4332; margin: 0 0 0.35rem;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+.drop-zone p { color: #6b6b6b; font-size: 0.82rem; margin: 0; }
+
+/* Preview */
+.preview-box { margin-top: 1.25rem; display: none; }
+.preview-box img {
+  width: 100%; border-radius: 10px;
+  max-height: 240px; object-fit: cover;
+  border: 2px solid #d8f3dc;
+}
+.preview-name { font-size: 0.78rem; color: #6b6b6b; margin-top: 0.4rem; }
+
+/* Analyse button */
+.btn-analyse {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: linear-gradient(135deg, #2d6a4f, #40916c);
+  color: #fff;
+  border: none; border-radius: 10px;
+  padding: 0.7rem 1.6rem;
+  font-size: 0.95rem; font-weight: 600;
+  font-family: 'Roboto', Arial, sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 14px rgba(45,106,79,0.35);
+}
+.btn-analyse:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(45,106,79,0.45);
+}
+.btn-analyse:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-clear {
+  display: none; align-items: center; gap: 0.4rem;
+  background: transparent; border: 1.5px solid #e4ede6;
+  border-radius: 10px; padding: 0.65rem 1.2rem;
+  font-size: 0.88rem; font-weight: 500; color: #6b6b6b;
+  cursor: pointer; font-family: 'Roboto', Arial, sans-serif;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-clear:hover { border-color: #c1121f; color: #c1121f; }
+.scan-btn-row { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.25rem; }
+
+/* Tips */
+.tips-card {
+  background: #f6fff8;
+  border: 1px solid #d8f3dc;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.25rem;
+}
+.tips-card h4 {
+  color: #1b4332; font-size: 0.88rem;
+  font-weight: 700; margin: 0 0 0.65rem;
+}
+.tips-card ul {
+  padding-left: 1.1rem; margin: 0;
+  color: #2d6a4f; font-size: 0.82rem; line-height: 2;
+}
+
+/* ── Result panel ── */
+.result-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Scanned image card */
+.scanned-img-card { padding: 1.25rem; }
+.scanned-img-label { font-size: 0.75rem; color: #6b6b6b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+.scanned-img {
+  width: 100%; border-radius: 10px;
+  max-height: 200px; object-fit: cover;
+  border: 2px solid #d8f3dc;
+}
+
+/* Prediction card */
+.pred-card-healthy { border-top: 4px solid #2d6a4f; }
+.pred-card-disease { border-top: 4px solid #c1121f; }
+.pred-card-medium  { border-top: 4px solid #e9c46a; }
+
+.pred-header {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.pred-icon-wrap {
+  width: 60px; height: 60px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; flex-shrink: 0;
+}
+.pred-icon-wrap.healthy { background: #d8f3dc; }
+.pred-icon-wrap.disease { background: #ffe5e5; }
+.pred-icon-wrap.medium  { background: #fff3cd; }
+
+.pred-label {
+  font-size: 1.3rem; font-weight: 700;
+  color: #1b4332; line-height: 1.2;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+.pred-conf { font-size: 0.82rem; color: #6b6b6b; margin-top: 0.2rem; }
+
+/* Confidence bar */
+.conf-bar-wrap { margin: 0.75rem 0 1rem; }
+.conf-bar-meta {
+  display: flex; justify-content: space-between;
+  font-size: 0.78rem; color: #6b6b6b; margin-bottom: 0.4rem;
+}
+.conf-bar-track {
+  height: 12px; background: #eef2ee;
+  border-radius: 20px; overflow: hidden;
+}
+.conf-bar-fill {
+  height: 100%; border-radius: 20px;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.conf-bar-fill.high   { background: linear-gradient(90deg, #52b788, #2d6a4f); }
+.conf-bar-fill.medium { background: linear-gradient(90deg, #f4a261, #e9c46a); }
+.conf-bar-fill.low    { background: linear-gradient(90deg, #e76f51, #c1121f); }
+
+/* Low confidence warning */
+.low-conf-warn {
+  background: #fff8e1; border: 1px solid #e9c46a;
+  border-radius: 8px; padding: 0.65rem 0.9rem;
+  font-size: 0.82rem; color: #7a5800; margin-bottom: 0.75rem;
+}
+
+/* All scores */
+.all-scores { margin-top: 0.5rem; }
+.all-scores-title {
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: #6b6b6b; margin-bottom: 0.6rem;
+}
+.score-row {
+  display: flex; align-items: center;
+  gap: 0.75rem; margin-bottom: 0.45rem;
+}
+.score-name { width: 150px; font-size: 0.8rem; color: #444; flex-shrink: 0; }
+.score-track {
+  flex: 1; height: 7px;
+  background: #eef2ee; border-radius: 10px; overflow: hidden;
+}
+.score-fill { height: 100%; border-radius: 10px; background: #74c69d; }
+.score-pct { width: 40px; text-align: right; font-size: 0.8rem; font-weight: 600; color: #1b4332; }
+
+/* Healthy message */
+.healthy-msg {
+  background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+  border-radius: 12px; padding: 2rem;
+  text-align: center;
+}
+.healthy-msg .hm-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.healthy-msg h3 { color: #1b4332; font-size: 1.1rem; font-weight: 700; margin: 0 0 0.3rem; }
+.healthy-msg p  { color: #2d6a4f; font-size: 0.88rem; margin: 0; }
+
+/* Disease info card */
+.disease-info-card {}
+.disease-name {
+  font-size: 1.15rem; font-weight: 700;
+  color: #1b4332; margin: 0 0 0.25rem;
+}
+.disease-sci { font-style: italic; color: #6b6b6b; font-size: 0.82rem; margin: 0 0 0.75rem; }
+.disease-desc { color: #444; font-size: 0.88rem; line-height: 1.7; margin: 0 0 0.85rem; }
+.disease-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+/* Treatment section */
+.treatment-section-title {
+  font-size: 1rem; font-weight: 700;
+  color: #1b4332; margin: 0 0 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.treat-block {
+  border: 1px solid #e4ede6;
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.treat-block:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+.treat-block.type-chemical   { border-left: 4px solid #c1121f; }
+.treat-block.type-organic    { border-left: 4px solid #52b788; }
+.treat-block.type-preventive { border-left: 4px solid #e9c46a; }
+.treat-block.type-cultural   { border-left: 4px solid #457b9d; }
+.treat-type-badge {
+  font-size: 0.67rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: #6b6b6b; margin-bottom: 0.3rem;
+}
+.treat-block h4 { color: #1b4332; font-size: 0.92rem; margin: 0 0 0.5rem; }
+.treat-block p  { font-size: 0.84rem; color: #555; line-height: 1.6; margin: 0 0 0.2rem; }
+.treat-cost { color: #2d6a4f !important; font-weight: 600 !important; }
+
+/* Empty state */
+.scan-empty {
+  background: #f9fdf9;
+  border: 2px dashed #d8f3dc;
+  border-radius: 14px;
+  padding: 3.5rem 2rem;
+  text-align: center;
+}
+.scan-empty .se-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+.scan-empty h3 { color: #1b4332; font-size: 1rem; font-weight: 600; margin: 0 0 0.35rem; }
+.scan-empty p  { color: #6b6b6b; font-size: 0.85rem; margin: 0; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .scan-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+<div class="scan-page">
+
+  <!-- Hero -->
+  <div class="scan-hero">
+    <div class="scan-hero-icon">🔬</div>
+    <div>
+      <h1>Scan a Leaf</h1>
+      <p>Upload an apple leaf photo — the CNN model identifies disease and recommends treatments instantly</p>
+    </div>
+  </div>
+
+  <!-- Not ready banner -->
+  {% if not model_ready %}
+  <div class="not-ready-banner">
+    <strong>⚠️ CNN Model Not Trained Yet</strong>
+    Run the following command from your project folder to train the model:<br>
+    <code>python cnn/train.py --data_dir path/to/plantvillage/apple/</code><br>
+    Download the PlantVillage dataset from
+    <a href="https://www.kaggle.com/datasets/emmarex/plantdisease" target="_blank" style="color:#2d6a4f;font-weight:600">Kaggle</a>,
+    keep only the 4 Apple___ folders, then point <code>--data_dir</code> at that folder.
+  </div>
+  {% endif %}
+
+  <!-- Two-column grid -->
+  <div class="scan-grid">
+
+    <!-- ── LEFT: Upload ── -->
+    <div>
+      <div class="sc-card">
+        <div class="sc-card-title"><span>📤</span> Upload Leaf Photo</div>
+
+        <form method="POST" enctype="multipart/form-data" id="scan-form" action="{{ url_for('scan') }}">
+          <div class="drop-zone" id="drop-zone">
+            <input type="file" name="leaf_image" id="leaf-input" accept="image/*"
+                   {% if not model_ready %}disabled{% endif %}>
+            <div class="drop-icon-wrap">🍃</div>
+            <h3>Drop your leaf photo here</h3>
+            <p>or click to browse &nbsp;·&nbsp; JPG, PNG, WEBP up to 8 MB</p>
+          </div>
+
+          <div class="preview-box" id="preview-box">
+            <img id="preview-img" src="" alt="Preview">
+            <p class="preview-name" id="preview-name"></p>
+          </div>
+
+          <div class="scan-btn-row">
+            <button type="submit" class="btn-analyse" {% if not model_ready %}disabled{% endif %}>
+              🔍 Analyse Leaf
+            </button>
+            <button type="button" class="btn-clear" id="clear-btn">✕ Clear</button>
+          </div>
+        </form>
+
+        <div class="tips-card">
+          <h4>📷 Tips for best results</h4>
+          <ul>
+            <li>Use a single leaf against a plain background</li>
+            <li>Ensure the leaf is fully in frame and in focus</li>
+            <li>Take the photo in natural daylight</li>
+            <li>Show the top side where symptoms are visible</li>
+            <li>Avoid shadows or glare on the leaf surface</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Results ── -->
+    <div class="result-panel">
+
+      {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      {% if result %}
+
+        <!-- Scanned image -->
+        {% if image_url %}
+        <div class="sc-card scanned-img-card">
+          <div class="scanned-img-label">Analysed Image</div>
+          <img src="{{ image_url }}" alt="Uploaded leaf" class="scanned-img">
+        </div>
+        {% endif %}
+
+        <!-- Prediction -->
+        {% set conf = result.confidence | int %}
+        {% set card_cls = 'pred-card-healthy' if result.is_healthy else ('pred-card-medium' if conf < 70 else 'pred-card-disease') %}
+        {% set icon_cls = 'healthy' if result.is_healthy else ('medium' if conf < 70 else 'disease') %}
+        {% set bar_cls  = 'high' if (result.is_healthy or conf >= 80) else ('medium' if conf >= 60 else 'low') %}
+
+        <div class="sc-card {{ card_cls }}">
+          <div class="pred-header">
+            <div class="pred-icon-wrap {{ icon_cls }}">
+              {{ '✅' if result.is_healthy else ('⚠️' if conf < 70 else '🦠') }}
+            </div>
+            <div>
+              <div class="pred-label">{{ result.label }}</div>
+              <div class="pred-conf">Confidence: <strong>{{ result.confidence }}%</strong></div>
+            </div>
+          </div>
+
+          <!-- Confidence bar -->
+          <div class="conf-bar-wrap">
+            <div class="conf-bar-meta">
+              <span>Model Confidence</span>
+              <span>{{ result.confidence }}%</span>
+            </div>
+            <div class="conf-bar-track">
+              <div class="conf-bar-fill {{ bar_cls }}" style="width:{{ result.confidence }}%"></div>
+            </div>
+          </div>
+
+          {% if conf < 60 %}
+          <div class="low-conf-warn">
+            ⚠️ Low confidence — try a clearer, better-lit photo or use the
+            <a href="{{ url_for('identify') }}" style="color:#2d6a4f;font-weight:600">symptom checker</a>.
+          </div>
+          {% endif %}
+
+          <!-- All class scores -->
+          <div class="all-scores">
+            <div class="all-scores-title">All Predictions</div>
+            {% for s in result.all_scores %}
+            <div class="score-row">
+              <span class="score-name">{{ s.label }}</span>
+              <div class="score-track">
+                <div class="score-fill" style="width:{{ s.confidence }}%"></div>
+              </div>
+              <span class="score-pct">{{ s.confidence }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Healthy -->
+        {% if result.is_healthy %}
+        <div class="healthy-msg">
+          <div class="hm-icon">🌿</div>
+          <h3>Your tree looks healthy!</h3>
+          <p>No disease detected. Keep up your current orchard management practices.</p>
+        </div>
+
+        <!-- Disease found -->
+        {% elif disease %}
+        <div class="sc-card disease-info-card">
+          <div class="disease-name">{{ disease.name }}</div>
+          {% if disease.scientific_name %}
+          <div class="disease-sci">{{ disease.scientific_name }}</div>
+          {% endif %}
+          <p class="disease-desc">{{ disease.description }}</p>
+          <div class="disease-badges">
+            <span class="severity-badge {{ disease.severity }}">{{ disease.severity|upper }} RISK</span>
+            <span class="category-badge">{{ disease.category }}</span>
+          </div>
+          <a href="{{ url_for('disease_detail', disease_id=disease.id) }}"
+             class="btn btn-outline btn-sm" style="display:inline-flex">
+            Full Disease Details →
+          </a>
+        </div>
+
+        <!-- Treatments -->
+        {% if treatments %}
+        <div class="sc-card">
+          <div class="treatment-section-title"><span>💊</span> Recommended Treatments</div>
+          {% for t in treatments %}
+          <div class="treat-block type-{{ t.type }}">
+            <div class="treat-type-badge">{{ t.type | title }}</div>
+            <h4>{{ t.name }}</h4>
+            {% if t.dosage %}<p><strong>Dosage:</strong> {{ t.dosage }}</p>{% endif %}
+            {% if t.instructions %}<p><strong>Instructions:</strong> {{ t.instructions }}</p>{% endif %}
+            {% if t.timing %}<p><strong>Timing:</strong> {{ t.timing }}</p>{% endif %}
+
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="alert alert-warning">
+          Disease detected as <strong>{{ result.label }}</strong> but no matching record found in the database.
+          <a href="{{ url_for('identify') }}" style="color:#2d6a4f;font-weight:600">Try the symptom checker →</a>
+        </div>
+        {% endif %}
+
+      {% else %}
+      <!-- Empty state -->
+      <div class="scan-empty">
+        <div class="se-icon">🍃</div>
+        <h3>No scan yet</h3>
+        <p>Upload a leaf photo on the left to get an instant AI diagnosis</p>
+      </div>
+      {% endif %}
+
+    </div><!-- end result panel -->
+  </div><!-- end scan-grid -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const input      = document.getElementById('leaf-input');
+const dropZone   = document.getElementById('drop-zone');
+const previewBox = document.getElementById('preview-box');
+const previewImg = document.getElementById('preview-img');
+const previewName= document.getElementById('preview-name');
+const clearBtn   = document.getElementById('clear-btn');
+
+function showPreview(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src = e.target.result;
+    previewName.textContent = file.name;
+    previewBox.style.display = 'block';
+    clearBtn.style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+input.addEventListener('change', () => showPreview(input.files[0]));
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    showPreview(file);
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  input.value = '';
+  previewImg.src = '';
+  previewBox.style.display = 'none';
+  clearBtn.style.display = 'none';
+});
+</script>
+{% endblock %}

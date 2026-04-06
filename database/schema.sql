@@ -1,0 +1,199 @@
+-- -- ============================================================
+-- -- Apple Orchard Doctor System - Database Schema
+-- -- ============================================================
+
+-- CREATE DATABASE  Apple_orchard_doctor;
+-- USE Apple_orchard_doctor;
+
+-- -- Users table
+-- CREATE TABLE users (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     name        VARCHAR(100)        NOT NULL,
+--     email       VARCHAR(150)        UNIQUE NOT NULL,
+--     password    VARCHAR(255)        NOT NULL,
+--     role        ENUM('farmer','expert','manager') DEFAULT 'farmer',
+--     phone       VARCHAR(20),
+--     location    VARCHAR(200),
+--     created_at  TIMESTAMP           DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- -- Disease categories
+-- CREATE TABLE categories (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     name        VARCHAR(100)        NOT NULL,
+--     description TEXT
+-- );
+
+-- -- Diseases table
+-- CREATE TABLE diseases (
+--     id              INT AUTO_INCREMENT PRIMARY KEY,
+--     category_id     INT,
+--     name            VARCHAR(150)    NOT NULL,
+--     scientific_name VARCHAR(200),
+--     description     TEXT,
+--     cause           TEXT,
+--     severity        ENUM('low','medium','high','critical') DEFAULT 'medium',
+--     image_url       VARCHAR(300),
+--     FOREIGN KEY (category_id) REFERENCES categories(id)
+-- );
+
+-- -- Symptoms table
+-- CREATE TABLE symptoms (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     name        VARCHAR(200)    NOT NULL,
+--     description TEXT,
+--     body_part   ENUM('leaf','fruit','bark','root','flower','whole_tree') DEFAULT 'leaf'
+-- );
+
+-- -- Many-to-many: disease <-> symptoms
+-- CREATE TABLE disease_symptoms (
+--     disease_id  INT NOT NULL,
+--     symptom_id  INT NOT NULL,
+--     PRIMARY KEY (disease_id, symptom_id),
+--     FOREIGN KEY (disease_id) REFERENCES diseases(id),
+--     FOREIGN KEY (symptom_id) REFERENCES symptoms(id)
+-- );
+
+-- -- Treatments table
+-- CREATE TABLE treatments (
+--     id              INT AUTO_INCREMENT PRIMARY KEY,
+--     disease_id      INT             NOT NULL,
+--     type            ENUM('chemical','organic','preventive','cultural') DEFAULT 'chemical',
+--     name            VARCHAR(200)    NOT NULL,
+--     dosage          VARCHAR(200),
+--     instructions    TEXT,
+--     timing          VARCHAR(200),
+--     cost_estimate   VARCHAR(100),
+--     FOREIGN KEY (disease_id) REFERENCES diseases(id)
+-- );
+
+-- -- Expert advice / forum posts
+-- CREATE TABLE advice (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     expert_id   INT             NOT NULL,
+--     disease_id  INT,
+--     title       VARCHAR(300)    NOT NULL,
+--     content     TEXT            NOT NULL,
+--     created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (expert_id) REFERENCES users(id),
+--     FOREIGN KEY (disease_id) REFERENCES diseases(id)
+-- );
+
+-- -- Diagnoses log (user activity)
+-- CREATE TABLE diagnoses (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     user_id     INT             NOT NULL,
+--     disease_id  INT             NOT NULL,
+--     notes       TEXT,
+--     diagnosed_at TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(id),
+--     FOREIGN KEY (disease_id) REFERENCES diseases(id)
+-- );
+
+-- -- ============================================================
+-- -- Seed Data
+-- -- ============================================================
+
+-- INSERT INTO categories (name, description) VALUES
+-- ('Fungal Disease',  'Diseases caused by fungal pathogens'),
+-- ('Bacterial Disease','Diseases caused by bacterial pathogens'),
+-- ('Pest Infestation', 'Damage caused by insects and pests'),
+-- ('Nutritional Deficiency', 'Problems caused by lack of nutrients'),
+-- ('Viral Disease',   'Diseases caused by viruses');
+
+-- INSERT INTO diseases (category_id, name, scientific_name, description, cause, severity) VALUES
+-- (1, 'Apple Scab',
+--     'Venturia inaequalis',
+--     'Apple scab is the most common disease of apple trees. It produces dark, scabby lesions on leaves and fruits.',
+--     'Fungal spores spread during wet spring weather. Overwintering on fallen leaves.',
+--     'high'),
+-- (1, 'Powdery Mildew',
+--     'Podosphaera leucotricha',
+--     'A white powdery coating appears on young shoots, leaves, and blossoms.',
+--     'Fungal infection favored by warm days and cool nights. Overwinters in buds.',
+--     'medium'),
+-- (1, 'Fire Blight',
+--     'Erwinia amylovora',
+--     'Causes blossoms, shoots and branches to turn brown and look as if scorched by fire.',
+--     'Bacterial disease. Spreads through rain and insects during bloom.',
+--     'critical'),
+-- (3, 'Codling Moth',
+--     'Cydia pomonella',
+--     'Larvae burrow into the fruit core, making apples unfit for sale or consumption.',
+--     'Adult moths lay eggs on developing fruit. Larvae tunnel into the core.',
+--     'high'),
+-- (3, 'Woolly Apple Aphid',
+--     'Eriosoma lanigerum',
+--     'White woolly masses on branches, trunk, and roots. Causes galls and weakens the tree.',
+--     'Aphid colonies feed on sap. Spread by wind, tools, and plant contact.',
+--     'medium'),
+-- (4, 'Iron Deficiency (Chlorosis)',
+--     NULL,
+--     'Yellowing of leaves (interveinal chlorosis) starting with young leaves.',
+--     'Alkaline soils reduce iron availability. Waterlogging worsens the condition.',
+--     'low'),
+-- (2, 'Crown Gall',
+--     'Agrobacterium tumefaciens',
+--     'Rough, wart-like galls form at the soil line or on roots and lower trunk.',
+--     'Soil-borne bacteria enter through wounds. Persists in soil for many years.',
+--     'medium'),
+-- (1, 'Black Rot',
+--     'Botryosphaeria obtusa',
+--     'Causes circular brown lesions on fruit (frog-eye leaf spot) and cankers on branches. Infected fruit mummifies on the tree.',
+--     'Fungal disease spreading from mummified fruit and dead wood during warm wet weather.',
+--     'high'),
+-- (1, 'Cedar Apple Rust',
+--     'Gymnosporangium juniperi-virginianae',
+--     'Bright orange-yellow spots on upper leaf surface in spring. Requires a nearby juniper or cedar host to complete its lifecycle.',
+--     'Fungal disease needing two hosts: apple and juniper. Spores spread by wind during wet spring weather.',
+--     'medium');
+
+-- INSERT INTO symptoms (name, body_part) VALUES
+-- ('Dark olive-green spots on leaves', 'leaf'),
+-- ('Scabby lesions on fruit surface', 'fruit'),
+-- ('White powdery coating on leaves', 'leaf'),
+-- ('Distorted or stunted new shoots', 'leaf'),
+-- ('Blossoms turning brown and dying', 'flower'),
+-- ('Shepherd''s crook wilting of shoot tips', 'leaf'),
+-- ('Small entry hole in fruit with brown frass', 'fruit'),
+-- ('White woolly masses on branches', 'bark'),
+-- ('Yellow leaves with green veins', 'leaf'),
+-- ('Rough warty galls at soil level', 'root'),
+-- ('Premature leaf drop', 'leaf'),
+-- ('Water-soaked lesions on bark', 'bark');
+
+-- INSERT INTO disease_symptoms VALUES
+-- (1,1),(1,2),(1,11),
+-- (2,3),(2,4),
+-- (3,5),(3,6),(3,12),
+-- (4,7),
+-- (5,8),
+-- (6,9),
+-- (7,10);
+
+-- INSERT INTO treatments (disease_id, type, name, dosage, instructions, timing, cost_estimate) VALUES
+-- (1,'chemical','Captan Fungicide','2g per litre of water','Spray thoroughly on all leaf surfaces. Repeat every 10-14 days during wet periods.','From green tip stage until harvest','Rs. 300-500 per acre'),
+-- (1,'preventive','Rake and Destroy Fallen Leaves',NULL,'Collect and burn or bury all fallen leaves in autumn to destroy overwintering spores.','Autumn / post-harvest','Free'),
+-- (2,'chemical','Sulphur-based Fungicide','3g per litre of water','Apply when powdery mildew is first visible. Cover young shoots thoroughly.','Early season - green tip to pink stage','Rs. 200-400 per acre'),
+-- (2,'cultural','Prune Infected Shoots',NULL,'Cut back infected shoots 15cm below visible symptoms. Disinfect pruning tools between cuts.','As soon as symptoms appear','Rs. 50-100 labour'),
+-- (3,'chemical','Copper Oxychloride','3g per litre of water','Apply before and after bloom. Do not spray open flowers.','Delayed dormant to petal fall','Rs. 400-700 per acre'),
+-- (3,'cultural','Remove Infected Wood',NULL,'Prune 30cm below the visible infection margin. Sterilise tools with bleach solution between every cut. Burn prunings immediately.','Immediately on detection','Rs. 200-500 labour'),
+-- (4,'chemical','Chlorpyrifos Spray','2ml per litre of water','Target adult moth emergence using pheromone traps. Spray at first catch.','From petal fall at 10-day intervals','Rs. 500-800 per acre'),
+-- (4,'preventive','Pheromone Traps',NULL,'Place 2-3 traps per acre at canopy height to monitor adult moth activity and time sprays.','From tight cluster stage','Rs. 100-200 per trap'),
+-- (5,'chemical','Imidacloprid','0.5ml per litre of water','Spray on all woolly masses. Drench soil around base of tree for root colonies.','Spring when colonies are young','Rs. 300-600 per acre'),
+-- (6,'chemical','Ferrous Sulphate Soil Drench','5g per litre water','Apply to root zone 3-4 times during the growing season. Maintain soil pH below 7.','April through August','Rs. 150-300 per acre'),
+-- (6,'cultural','Improve Soil Drainage',NULL,'Avoid waterlogging. Raise beds or install drainage where needed. Mulch with organic matter.','Before planting / annually','Rs. 500-2000 one-time'),
+-- (7,'cultural','Remove Galls and Disinfect',NULL,'Carefully cut out galls. Paint wounds with copper-based paste. Remove severely infected trees.','Autumn or early spring','Rs. 200-500 labour'),
+-- (8,'chemical','Captan or Mancozeb Fungicide','2g per litre of water','Spray from pink bud stage. Remove and destroy all mummified fruit from the tree and ground before season.','Pink bud through harvest, every 10-14 days','Rs. 300-500 per acre'),
+-- (8,'preventive','Remove Mummified Fruit',NULL,'Pick off and destroy all mummified fruit during winter pruning. These are the primary source of inoculum for the next season.','Winter / dormant season','Rs. 100-200 labour'),
+-- (8,'cultural','Prune Dead Wood',NULL,'Remove all dead or cankered branches back to healthy wood. Sterilise tools between cuts. This eliminates the main overwintering sites.','Late winter before bud break','Rs. 200-400 labour'),
+-- (9,'chemical','Myclobutanil Fungicide','1.5ml per litre of water','Apply starting at pink bud stage and continue through petal fall. This is the critical infection window.','Pink bud to petal fall, every 7-10 days in wet weather','Rs. 400-700 per acre'),
+-- (9,'preventive','Remove Nearby Juniper / Cedar Trees',NULL,'The fungus requires both apple and juniper hosts. Removing junipers within 1-2 km significantly reduces infection pressure where feasible.','One-time action','Free'),
+-- (9,'cultural','Plant Resistant Varieties',NULL,'Where replanting, choose rust-resistant apple varieties such as Redfree, Liberty, or Enterprise to reduce long-term management costs.','At planting time','Variety cost');
+
+
+-- INSERT INTO advice (expert_id, disease_id, title, content) VALUES
+-- (1, 1, 'Managing Apple Scab in Kashmir Valley',
+--  'Apple Scab is our biggest challenge during the wet spring season in the valley. The key is to start protective sprays at the green tip stage, before infection occurs. Once you see dark spots, the disease has already spread internally. Use Captan or Mancozeb on a 10-14 day schedule. Most importantly, rake and burn all fallen leaves every autumn - this breaks the disease cycle more effectively than any spray.'),
+-- (1, 3, 'Fire Blight - Act Immediately',
+--  'If you see the characteristic shepherd''s crook wilting with a brown colour, act the same day. Every hour of delay allows the bacteria to spread further into the wood. Use sterilised tools - I recommend a 10% bleach solution between every single cut. Cut 30cm below visible symptoms. Do not compost the prunings - burn them. This disease can kill an entire orchard if ignored.');

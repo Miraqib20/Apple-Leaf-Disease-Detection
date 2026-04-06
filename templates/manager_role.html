@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Orchard Manager Role — Leaf Orchard Doctor{% endblock %}
+{% block content %}
+<div class="main-content">
+
+  <a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+
+  <div class="role-hero">
+    <div class="role-hero-icon">🏡</div>
+    <div>
+      <h1>Orchard Manager</h1>
+      <p>Your complete management hub — monitor, treat, prevent, prune, analyse, and lead your team.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 1: Disease Monitoring ── -->
+  <div class="mgr-section">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">🌿</span>
+      <div>
+        <h2><span class="role-num">1.</span> Disease Monitoring &amp; Detection</h2>
+        <p>Inspect trees, upload leaf images, and track detected diseases instantly.</p>
+      </div>
+    </div>
+    <div class="mgr-cards">
+      <a href="{{ url_for('scan') }}" class="mgr-action-btn mgr-btn-green">🔬 Scan Leaf (AI)</a>
+      <a href="{{ url_for('identify') }}" class="mgr-action-btn mgr-btn-outline">🔍 Identify by Symptoms</a>
+      <a href="{{ url_for('diseases') }}" class="mgr-action-btn mgr-btn-outline">📚 Disease Library</a>
+    </div>
+    <div class="mgr-info-list">
+      <div class="mgr-info-item">✔ Regularly inspect apple trees for early signs of diseases</div>
+      <div class="mgr-info-item">✔ Identify Apple Scab, Fire Blight, Cedar Apple Rust</div>
+      <div class="mgr-info-item">✔ Results stored automatically in your diagnosis history</div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Treatment ── -->
+  <div class="mgr-section">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">💊</span>
+      <div>
+        <h2><span class="role-num">2.</span> Disease Control &amp; Treatment</h2>
+        <p>View recommended pesticides, dosages, and download treatment plans.</p>
+      </div>
+    </div>
+    <div class="mgr-cards">
+      <a href="{{ url_for('diseases') }}" class="mgr-action-btn mgr-btn-green">💊 View Treatments</a>
+      <a href="{{ url_for('dashboard_pdf') }}" class="mgr-action-btn mgr-btn-outline">⬇ Download Full Report (PDF)</a>
+    </div>
+    <div class="mgr-treatment-grid">
+      <div class="mgr-treat-card"><span>🧪</span><strong>Pesticides</strong><p>Chemical and organic options per disease</p></div>
+      <div class="mgr-treat-card"><span>📏</span><strong>Dosage</strong><p>Exact dosage and dilution ratios</p></div>
+      <div class="mgr-treat-card"><span>📋</span><strong>Instructions</strong><p>Step-by-step application and timing</p></div>
+      <div class="mgr-treat-card"><span>💾</span><strong>Save Plan</strong><p>Download as PDF for offline use</p></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: Preventive Care Checklist ── -->
+  <div class="mgr-section" id="section-checklist">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">🌱</span>
+      <div>
+        <h2><span class="role-num">3.</span> Preventive Care</h2>
+        <p>Track daily orchard hygiene tasks. Progress is saved to your account.</p>
+      </div>
+    </div>
+
+    {% set checklist_items = [
+      "Remove infected leaves and fallen fruits from orchard floor",
+      "Check tree spacing — ensure adequate airflow between trees",
+      "Inspect irrigation system — avoid excess moisture on leaves",
+      "Apply preventive fungicide spray before rain season",
+      "Sanitise all pruning tools before use",
+      "Monitor weather forecast for high-humidity risk days"
+    ] %}
+
+    <div class="mgr-checklist" id="checklist">
+      {% for item in checklist_items %}
+      {% set done = checklist_rows.get(item, 0) %}
+      <div class="mgr-check-item {% if done %}checked{% endif %}"
+           onclick="toggleCheck(this, '{{ item | e }}')"
+           data-task="{{ item | e }}">
+        <span class="mgr-check-box">{{ '✅' if done else '☐' }}</span>
+        <span>{{ item }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mgr-checklist-footer">
+      <span id="checkCount">0 / {{ checklist_items|length }} tasks completed</span>
+      <button class="mgr-action-btn mgr-btn-outline" onclick="resetAllChecklist()" style="padding:0.35rem 1rem;font-size:0.8rem;">Reset All</button>
+    </div>
+
+    <div class="mgr-seasonal-tips">
+      <h4>🍂 Seasonal Tips</h4>
+      <div class="mgr-tips-grid">
+        <div class="mgr-tip"><strong>Spring</strong><p>Apply copper-based fungicide before bud break to prevent scab</p></div>
+        <div class="mgr-tip"><strong>Summer</strong><p>Monitor for fire blight — prune infected shoots 30cm below visible damage</p></div>
+        <div class="mgr-tip"><strong>Autumn</strong><p>Remove all fallen leaves — they harbour overwintering fungal spores</p></div>
+        <div class="mgr-tip"><strong>Winter</strong><p>Apply dormant oil spray to kill overwintering mites and scale insects</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: Pruning ── -->
+  <div class="mgr-section" id="section-prune">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">✂️</span>
+      <div>
+        <h2><span class="role-num">4.</span> Pruning &amp; Tree Management</h2>
+        <p>Guides on when and how to prune, plus activity logging saved to database.</p>
+      </div>
+    </div>
+    <div class="mgr-prune-grid">
+      <div class="mgr-prune-card">
+        <div class="mgr-prune-icon">📅</div>
+        <h4>When to Prune</h4>
+        <ul>
+          <li>Late winter (Feb–Mar) before bud break</li>
+          <li>Immediately after detecting fire blight</li>
+          <li>After harvest to shape the canopy</li>
+        </ul>
+      </div>
+      <div class="mgr-prune-card">
+        <div class="mgr-prune-icon">✂️</div>
+        <h4>How to Prune</h4>
+        <ul>
+          <li>Cut at 45° angle just above a bud</li>
+          <li>Remove crossing or rubbing branches first</li>
+          <li>Disinfect tools between each tree with 70% alcohol</li>
+        </ul>
+      </div>
+      <div class="mgr-prune-card">
+        <div class="mgr-prune-icon">🎯</div>
+        <h4>Goals</h4>
+        <ul>
+          <li>Open canopy for sunlight penetration</li>
+          <li>Improve air circulation to reduce fungal risk</li>
+          <li>Remove dead, diseased, or damaged wood</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mgr-log-form">
+      <h4>📝 Log Pruning Activity</h4>
+      <form method="POST" action="{{ url_for('add_prune_log') }}">
+        <div class="mgr-log-row">
+          <input type="date" name="prune_date" class="mgr-input" required>
+          <input type="text" name="area" class="mgr-input" placeholder="Area / Block (e.g. Block A)" required>
+          <input type="number" name="trees_pruned" class="mgr-input" placeholder="No. of trees pruned" min="1" required>
+          <button type="submit" class="mgr-action-btn mgr-btn-green">+ Log</button>
+        </div>
+      </form>
+
+      {% if prune_logs %}
+      <div class="mgr-log-list">
+        {% for log in prune_logs %}
+        <div class="mgr-log-entry">
+          <span>📅 {{ log.prune_date.strftime('%d %b %Y') }}</span>
+          <span>📍 {{ log.area }}</span>
+          <span>🌳 {{ log.trees_pruned }} trees</span>
+          <form method="POST" action="{{ url_for('delete_prune_log', log_id=log.id) }}" style="margin:0">
+            <button type="submit" class="mgr-del-btn" title="Delete">✕</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mgr-empty-note">No pruning logs yet. Add your first entry above.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: Records ── -->
+  <div class="mgr-section">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">📊</span>
+      <div>
+        <h2><span class="role-num">5.</span> Record Keeping &amp; Analysis</h2>
+        <p>View your diagnosis history, filter by date or disease, and export data.</p>
+      </div>
+    </div>
+    <div class="mgr-cards">
+      <a href="{{ url_for('dashboard') }}#recent" class="mgr-action-btn mgr-btn-green">📋 View History</a>
+      <a href="{{ url_for('dashboard_pdf') }}" class="mgr-action-btn mgr-btn-outline">⬇ Export PDF</a>
+      <a href="{{ url_for('dashboard') }}" class="mgr-action-btn mgr-btn-outline">📊 Dashboard Stats</a>
+    </div>
+    <div class="mgr-records-summary">
+      <div class="mgr-rec-stat">
+        <span class="mgr-rec-val">{{ total_diagnoses }}</span>
+        <small>Total Diagnoses</small>
+      </div>
+      <div class="mgr-rec-stat">
+        <span class="mgr-rec-val">{{ recent_count }}</span>
+        <small>This Month</small>
+      </div>
+      <div class="mgr-rec-stat">
+        <span class="mgr-rec-val">{{ prune_logs|length }}</span>
+        <small>Pruning Logs</small>
+      </div>
+      <div class="mgr-rec-stat">
+        <span class="mgr-rec-val">{{ tasks|length }}</span>
+        <small>Team Tasks</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: Team Tasks ── -->
+  <div class="mgr-section" id="section-team">
+    <div class="mgr-section-header">
+      <span class="mgr-section-icon">👨🌾</span>
+      <div>
+        <h2><span class="role-num">6.</span> Team &amp; Operations Management</h2>
+        <p>Assign tasks to workers, track progress. All data saved to database.</p>
+      </div>
+    </div>
+
+    <div class="mgr-team-form">
+      <h4>➕ Assign New Task</h4>
+      <form method="POST" action="{{ url_for('add_task') }}">
+        <div class="mgr-log-row">
+          <input type="text" name="worker_name" class="mgr-input" placeholder="Worker name" required>
+          <select name="task_type" class="mgr-input" required>
+            <option value="">Select task type</option>
+            <option>Spraying</option>
+            <option>Pruning</option>
+            <option>Harvesting</option>
+            <option>Irrigation</option>
+            <option>Leaf Inspection</option>
+            <option>Cleaning</option>
+          </select>
+          <input type="date" name="task_date" class="mgr-input" required>
+          <button type="submit" class="mgr-action-btn mgr-btn-green">Assign</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="mgr-task-board">
+      {% for col_stage, col_label, col_class in [(0,'📌 Pending','pending'),(1,'⚙️ In Progress','inprogress'),(2,'✅ Completed','done')] %}
+      <div class="mgr-task-col">
+        <div class="mgr-task-col-header {{ col_class }}">{{ col_label }}</div>
+        <div class="mgr-task-list">
+          {% for t in tasks if t.stage == col_stage %}
+          <div class="mgr-task-card">
+            <strong>{{ t.task_type }}</strong>
+            <span>👤 {{ t.worker_name }}</span>
+            <span>📅 {{ t.task_date.strftime('%d %b %Y') }}</span>
+            <div class="mgr-task-actions">
+              {% if t.stage < 2 %}
+              <form method="POST" action="{{ url_for('advance_task', task_id=t.id) }}" style="margin:0">
+                <button type="submit" class="mgr-task-btn-advance">
+                  {{ 'Move to In Progress →' if t.stage == 0 else 'Mark Completed →' }}
+                </button>
+              </form>
+              {% endif %}
+              <form method="POST" action="{{ url_for('delete_task', task_id=t.id) }}" style="margin:0">
+                <button type="submit" class="mgr-del-btn" title="Delete task">✕</button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          {% endfor %}
+          {% if tasks | selectattr('stage','equalto', col_stage) | list | length == 0 %}
+          <p class="mgr-empty-note" style="font-size:0.78rem;padding:0.5rem;">No tasks here.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* Checklist — saves to MySQL via fetch */
+function toggleCheck(el, taskText) {
+  el.classList.toggle('checked');
+  const done = el.classList.contains('checked') ? 1 : 0;
+  el.querySelector('.mgr-check-box').textContent = done ? '✅' : '☐';
+  updateCheckCount();
+  fetch('/checklist/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task_text: taskText, is_done: done })
+  });
+}
+
+function updateCheckCount() {
+  const total = document.querySelectorAll('.mgr-check-item').length;
+  const done  = document.querySelectorAll('.mgr-check-item.checked').length;
+  document.getElementById('checkCount').textContent = `${done} / ${total} tasks completed`;
+}
+
+function resetAllChecklist() {
+  document.querySelectorAll('.mgr-check-item').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.mgr-check-box').textContent = '☐';
+  });
+  updateCheckCount();
+  fetch('/checklist/reset', { method: 'POST' });
+}
+
+/* Init count on load */
+updateCheckCount();
+</script>
+{% endblock %}

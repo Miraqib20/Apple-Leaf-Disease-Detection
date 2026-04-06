@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% block title %}{{ disease.name }} — Leaf Orchard Doctor{% endblock %}
+
+{% block head %}
+<style>
+/* ══ DISEASE DETAIL PAGE ════════════════════════════════════ */
+
+.dd-page { font-family: Arial, sans-serif; animation: ddFadeIn 0.45s ease both; }
+@keyframes ddFadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Back link ── */
+.dd-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  padding: 0.45rem 1rem;
+  background: #fff; border: 1.5px solid #d8f3dc;
+  border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+  color: #2d6a4f; text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.dd-back:hover { background: #d8f3dc; transform: translateX(-2px); }
+
+/* ── Hero header ── */
+.dd-hero {
+  border-radius: 16px;
+  padding: 2rem 2.25rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.dd-hero.sev-critical { background: linear-gradient(120deg, #7b241c 0%, #c1121f 100%); }
+.dd-hero.sev-high     { background: linear-gradient(120deg, #7d3c1a 0%, #e76f51 100%); }
+.dd-hero.sev-medium   { background: linear-gradient(120deg, #7a5800 0%, #e9c46a 100%); }
+.dd-hero.sev-low      { background: linear-gradient(120deg, #1b4332 0%, #40916c 100%); }
+.dd-hero::after {
+  content: '🍎';
+  position: absolute; right: 1.5rem; bottom: -0.5rem;
+  font-size: 7rem; opacity: 0.08; pointer-events: none;
+}
+.dd-hero-left { flex: 1; }
+.dd-cat-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 0.25rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+.dd-hero h1 {
+  font-size: 2rem; font-weight: 800;
+  color: #fff; margin: 0 0 0.35rem;
+  line-height: 1.2;
+}
+.dd-hero-sci {
+  font-style: italic;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.9rem; margin: 0;
+}
+.dd-sev-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  padding: 0.5rem 1.1rem;
+  border-radius: 30px;
+  font-size: 0.85rem; font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-start;
+  backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(255,255,255,0.25);
+}
+
+/* ── Main grid ── */
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ── Base card ── */
+.dd-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e4ede6;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.dd-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+/* Section heading inside card */
+.dd-section-title {
+  display: flex; align-items: center; gap: 0.55rem;
+  font-size: 1rem; font-weight: 700;
+  color: #1b4332; margin: 0 0 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid #d8f3dc;
+}
+.dd-section-icon {
+  width: 32px; height: 32px;
+  background: #d8f3dc;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.dd-section-body {
+  color: #444; font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+/* ── Symptoms chips ── */
+.dd-chips {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  list-style: none; padding: 0; margin: 0;
+}
+.dd-chip {
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem; font-weight: 500;
+  background: #f0f7f4;
+  color: #1b4332;
+  border: 1px solid #d8f3dc;
+  transition: background 0.15s;
+}
+.dd-chip:hover { background: #d8f3dc; }
+.dd-chip.part-leaf     { background: #e8f5e9; border-color: #a5d6a7; }
+.dd-chip.part-fruit    { background: #fff3e0; border-color: #ffcc80; }
+.dd-chip.part-bark     { background: #efebe9; border-color: #bcaaa4; }
+.dd-chip.part-root     { background: #fce4ec; border-color: #f48fb1; }
+.dd-chip.part-flower   { background: #f3e5f5; border-color: #ce93d8; }
+.dd-chip.part-whole_tree { background: #e3f2fd; border-color: #90caf9; }
+
+/* ── Treatment blocks ── */
+.dd-treat {
+  border: 1px solid #e4ede6;
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.85rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.dd-treat:last-child { margin-bottom: 0; }
+.dd-treat:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.dd-treat.type-chemical   { border-left: 4px solid #c1121f; }
+.dd-treat.type-organic    { border-left: 4px solid #52b788; }
+.dd-treat.type-preventive { border-left: 4px solid #e9c46a; }
+.dd-treat.type-cultural   { border-left: 4px solid #457b9d; }
+.dd-treat-type {
+  font-size: 0.68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: #6b6b6b; margin-bottom: 0.3rem;
+}
+.dd-treat h4 { color: #1b4332; font-size: 0.95rem; margin: 0 0 0.5rem; }
+.dd-treat p  { font-size: 0.85rem; color: #555; line-height: 1.65; margin: 0 0 0.2rem; }
+
+/* ── Sidebar ── */
+.dd-sidebar { display: flex; flex-direction: column; gap: 1.25rem; position: sticky; top: 80px; }
+
+/* Log card */
+.dd-log-card {
+  background: linear-gradient(135deg, #1b4332, #2d6a4f);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(27,67,50,0.25);
+}
+.dd-log-card h3 { color: #fff; font-size: 1rem; margin: 0 0 0.35rem; }
+.dd-log-card p  { color: rgba(255,255,255,0.7); font-size: 0.83rem; margin: 0 0 1rem; line-height: 1.5; }
+.dd-log-card textarea {
+  width: 100%; padding: 0.65rem 0.85rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; color: #fff;
+  font-family: Arial, sans-serif; font-size: 0.85rem;
+  resize: vertical; margin-bottom: 0.85rem; outline: none;
+}
+.dd-log-card textarea::placeholder { color: rgba(255,255,255,0.4); }
+.dd-log-card textarea:focus { border-color: rgba(255,255,255,0.5); }
+.dd-log-btn {
+  width: 100%; padding: 0.7rem;
+  background: #fff; color: #1b4332;
+  border: none; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 700;
+  font-family: Arial, sans-serif; cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.dd-log-btn:hover { background: #d8f3dc; transform: translateY(-1px); }
+
+/* Expert advice sidebar */
+.dd-advice-card {}
+.dd-advice-item {
+  padding-bottom: 0.9rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 1px solid #f0f4f0;
+}
+.dd-advice-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.dd-advice-item strong { display: block; color: #1b4332; font-size: 0.88rem; margin-bottom: 0.3rem; }
+.dd-advice-item p { font-size: 0.82rem; color: #6b6b6b; line-height: 1.55; margin: 0 0 0.3rem; }
+.dd-expert-name { font-size: 0.75rem; color: #2d6a4f; font-weight: 700; }
+
+/* Staggered card animation */
+.dd-main > .dd-card { animation: ddFadeIn 0.4s ease both; }
+.dd-main > .dd-card:nth-child(1) { animation-delay: 0.05s; }
+.dd-main > .dd-card:nth-child(2) { animation-delay: 0.10s; }
+.dd-main > .dd-card:nth-child(3) { animation-delay: 0.15s; }
+.dd-main > .dd-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .dd-grid { grid-template-columns: 1fr; }
+  .dd-sidebar { position: static; }
+  .dd-hero h1 { font-size: 1.5rem; }
+}
+@media (max-width: 480px) {
+  .dd-hero { padding: 1.25rem; }
+  .dd-hero h1 { font-size: 1.25rem; }
+  .dd-card { padding: 1.1rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dd-page">
+
+  <!-- Back -->
+  <a href="{{ url_for('diseases') }}" class="dd-back">← Disease Library</a>
+
+  <!-- Hero header -->
+  {% set sev = disease.severity %}
+  <div class="dd-hero sev-{{ sev }}">
+    <div class="dd-hero-left">
+      <span class="dd-cat-badge">{{ disease.category }}</span>
+      <h1>{{ disease.name }}</h1>
+      {% if disease.scientific_name %}
+      <p class="dd-hero-sci">{{ disease.scientific_name }}</p>
+      {% endif %}
+    </div>
+    <div class="dd-sev-badge">
+      {% if sev == 'critical' %}🔴{% elif sev == 'high' %}🟠{% elif sev == 'medium' %}🟡{% else %}🟢{% endif %}
+      {{ sev|upper }} RISK
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="dd-grid">
+
+    <!-- ── LEFT: Main content ── -->
+    <div class="dd-main">
+
+      <!-- About -->
+      <div class="dd-card">
+        <div class="dd-section-title">
+          <div class="dd-section-icon">ℹ️</div>
+          About this Disease
+        </div>
+        <div class="dd-section-body">{{ disease.description }}</div>
+      </div>
+
+      <!-- Cause -->
+      <div class="dd-card">
+        <div class="dd-section-title">
+          <div class="dd-section-icon">⚠️</div>
+          Cause
+        </div>
+        <div class="dd-section-body">{{ disease.cause }}</div>
+      </div>
+
+      <!-- Symptoms -->
+      {% if symptoms %}
+      <div class="dd-card">
+        <div class="dd-section-title">
+          <div class="dd-section-icon">🔍</div>
+          Symptoms to Look For
+        </div>
+        <ul class="dd-chips">
+          {% for s in symptoms %}
+          <li class="dd-chip part-{{ s.body_part }}">{{ s.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Treatments -->
+      <div class="dd-card">
+        <div class="dd-section-title">
+          <div class="dd-section-icon">💊</div>
+          Treatment Options
+        </div>
+        {% if treatments %}
+          {% for t in treatments %}
+          <div class="dd-treat type-{{ t.type }}">
+            <div class="dd-treat-type">{{ t.type|title }}</div>
+            <h4>{{ t.name }}</h4>
+            {% if t.dosage %}<p><strong>Dosage:</strong> {{ t.dosage }}</p>{% endif %}
+            {% if t.instructions %}<p><strong>Instructions:</strong> {{ t.instructions }}</p>{% endif %}
+            {% if t.timing %}<p><strong>Timing:</strong> {{ t.timing }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#6b6b6b;font-size:0.88rem">No treatments recorded yet.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT: Sidebar ── -->
+    <div class="dd-sidebar">
+
+      <!-- Log diagnosis -->
+      <div class="dd-log-card">
+        <h3>📋 Log This Diagnosis</h3>
+        <p>Record that you've found this disease in your orchard.</p>
+        <form method="POST" action="{{ url_for('log_diagnosis') }}">
+          <input type="hidden" name="disease_id" value="{{ disease.id }}">
+          <textarea name="notes" placeholder="Add notes about your orchard..." rows="3"></textarea>
+          <button type="submit" class="dd-log-btn">✓ Log Diagnosis</button>
+        </form>
+      </div>
+
+      <!-- Expert advice -->
+      {% if advice %}
+      <div class="dd-card dd-advice-card">
+        <div class="dd-section-title">
+          <div class="dd-section-icon">💬</div>
+          Expert Notes
+        </div>
+        {% for a in advice %}
+        <div class="dd-advice-item">
+          <strong>{{ a.title }}</strong>
+          <p>{{ a.content[:160] }}{% if a.content|length > 160 %}…{% endif %}</p>
+          <span class="dd-expert-name">— {{ a.expert_name }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}
