@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🍎 Apple Orchard Doctor System
 
 A web-based disease and pest identification system for apple growers in Kashmir Valley.
@@ -181,3 +182,6 @@ are identifiable through the symptom checker at `/identify`.
 - **Database:** MySQL
 - **CNN:** TensorFlow / Keras — MobileNetV2 transfer learning
 - **Fonts:** Playfair Display + DM Sans (Google Fonts)
+=======
+# Apple-Leaf-Disease-Detection
+>>>>>>> de6e2d3d144905e2a5f9070878a2c95f7968f3df
