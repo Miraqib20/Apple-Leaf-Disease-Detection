@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# 🍎 Apple Orchard Doctor System
+# 🍎 Apple Leaf Disease Detection
 
 A web-based disease and pest identification system for apple growers in Kashmir Valley.
 Now includes a **CNN-based leaf scanner** powered by MobileNetV2 + TensorFlow.
