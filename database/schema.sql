@@ -197,3 +197,35 @@
 --  'Apple Scab is our biggest challenge during the wet spring season in the valley. The key is to start protective sprays at the green tip stage, before infection occurs. Once you see dark spots, the disease has already spread internally. Use Captan or Mancozeb on a 10-14 day schedule. Most importantly, rake and burn all fallen leaves every autumn - this breaks the disease cycle more effectively than any spray.'),
 -- (1, 3, 'Fire Blight - Act Immediately',
 --  'If you see the characteristic shepherd''s crook wilting with a brown colour, act the same day. Every hour of delay allows the bacteria to spread further into the wood. Use sterilised tools - I recommend a 10% bleach solution between every single cut. Cut 30cm below visible symptoms. Do not compost the prunings - burn them. This disease can kill an entire orchard if ignored.');
+-- CREATE TABLE pruning_logs (
+--     id           INT AUTO_INCREMENT PRIMARY KEY,
+--     user_id      INT NOT NULL,
+--     prune_date   DATE NOT NULL,
+--     area         VARCHAR(100) NOT NULL,
+--     trees_pruned INT NOT NULL,
+--     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- );
+
+-- -- ── 2. Checklist Progress ────────────────────────────────────────────────────
+-- CREATE TABLE checklist_progress (
+--     id         INT AUTO_INCREMENT PRIMARY KEY,
+--     user_id    INT NOT NULL,
+--     task_text  VARCHAR(255) NOT NULL,
+--     is_done    TINYINT(1) DEFAULT 0,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     UNIQUE KEY unique_user_task (user_id, task_text),
+--     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- );
+
+-- -- ── 3. Team Tasks (Kanban) ───────────────────────────────────────────────────
+-- CREATE TABLE tasks (
+--     id          INT AUTO_INCREMENT PRIMARY KEY,
+--     manager_id  INT NOT NULL,
+--     worker_name VARCHAR(100) NOT NULL,
+--     task_type   VARCHAR(100) NOT NULL,
+--     task_date   DATE NOT NULL,
+--     stage       TINYINT DEFAULT 0 COMMENT '0=Pending, 1=In Progress, 2=Completed',
+--     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE CASCADE
+-- );

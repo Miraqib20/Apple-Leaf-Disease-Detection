@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Apple Orchard Doctor{% endblock %}</title>
+  <title>{% block title %}Apple Leaf Diseases Detection{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block head %}{% endblock %}
@@ -14,7 +14,7 @@
 <nav class="navbar">
   <div class="nav-brand nav-brand-center">
     <span class="nav-icon">🍎</span>
-    <span class="nav-title">Leaf Orchard Doctor</span>
+    <span class="nav-title">Apple Leaf Diseases Detection</span>
   </div>
   <div class="nav-user">
     <span class="user-badge {{ session.role }}">{{ session.role|capitalize }}</span>
