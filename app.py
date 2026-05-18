@@ -5,6 +5,9 @@ Requires: pip install flask flask-mysqldb flask-bcrypt flask-session
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, make_response
+import pymysql
+pymysql.install_as_MySQLdb()
+
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 import os

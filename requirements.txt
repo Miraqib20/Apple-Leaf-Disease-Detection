@@ -9,3 +9,7 @@ Pillow==10.3.0
 scipy==1.13.0
 reportlab==4.2.0
 grpcio==1.62.2
+<<<<<<< HEAD
+=======
+mysqlclient==2.2.8
+>>>>>>> dece3af (Configured PyMySQL for Vercel)
