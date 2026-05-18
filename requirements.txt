@@ -1,4 +1,7 @@
 Flask==3.0.3
+flask-mysqldb==2.0.0
+PyMySQL==1.1.0
+flask-bcrypt==1.0.1
 gunicorn==22.0.0
 numpy==1.26.4
 pandas==2.2.2
@@ -9,7 +12,3 @@ Pillow==10.3.0
 scipy==1.13.0
 reportlab==4.2.0
 grpcio==1.62.2
-<<<<<<< HEAD
-=======
-mysqlclient==2.2.8
->>>>>>> dece3af (Configured PyMySQL for Vercel)
